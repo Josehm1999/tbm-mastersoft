@@ -4,9 +4,6 @@ import jwt from '../lib/jwt.js';
 import userService from '../services/user.js';
 
 const registerUser = async (req, res) => {
-  if (!req.body.name || !req.body.email || !req.body.password)
-    return res.status(400).send({ message: 'Incomplete data' });
-
   let pass = await bcrypt.hash(req.body.password, 10);
 
   const schema = new user({
@@ -29,10 +26,6 @@ const registerUser = async (req, res) => {
 };
 
 const registerAdminUser = async (req, res) => {
-  const existingUser = await user.findOne({ email: req.body.email });
-  if (existingUser)
-    return res.status(400).send({ message: 'The user is already registered' });
-
   const passHash = await bcrypt.hash(req.body.password, 10);
 
   const userRegister = new user({
@@ -102,7 +95,7 @@ const updateUser = async (req, res) => {
     return res.status(400).send({ message: 'Incomplete data' });
 
   let pass = '';
-  const searchUser= await user.findOne({email:req.body.email});
+  const searchUser = await user.findOne({ email: req.body.email });
   if (req.body.password) {
     const passHash = await bcrypt.hassCompare(
       req.body.password,
@@ -150,9 +143,6 @@ const login = async (req, res) => {
   let pass = await bcrypt.compare(req.body.password, userLogin.password);
 
   if (!pass)
-    return res.status(400).send({ message: 'Wrong email or password' });
-
-  if (!userLogin.dbStatus)
     return res.status(400).send({ message: 'Wrong email or password' });
 
   const token = await jwt.generateToken(userLogin);

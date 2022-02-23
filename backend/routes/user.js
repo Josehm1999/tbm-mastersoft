@@ -2,7 +2,7 @@ import express from 'express';
 import user from '../controllers/user.js';
 import auth from '../middlewares/auth.js';
 import admin from '../middlewares/admin.js';
-import userMidd from '../middlewares/user.js';
+import { existingUser, activeStatus } from '../middlewares/user.js';
 import roleMidd from '../middlewares/role.js';
 import validId from '../middlewares/validId.js';
 import {
@@ -20,17 +20,37 @@ router.post(
     isNameValid,
     isEmailValid,
     isPasswordValid,
-    userMidd.existingUser,
+    existingUser,
     roleMidd.getRoleUser,
   ],
   user.registerUser
 );
-router.post('/registerAdminUser', [isNameValid, auth, admin], user.registerAdminUser);
-router.post('/login', [isEmailValid, isPasswordValid], user.login);
+router.post(
+  '/registerAdminUser',
+  [auth, admin, existingUser],
+  user.registerAdminUser
+);
+router.post(
+  '/login',
+  [isEmailValid, isPasswordValid, activeStatus],
+  user.login
+);
 router.get('/listUsers/:name?', [auth, admin], user.listAllUser);
-router.get('/getRole/:email', [auth, isEmailValid], user.getUserRole);
-router.get('/findUser/:_id', [auth, validId, admin], user.findUser);
-router.put('/updateUser', [isNameValid, auth, admin], user.updateUser);
-router.put('/deleteUser/:_id', [auth, validId, admin], user.deleteUser);
+router.get(
+  '/getRole/:email',
+  [auth, isEmailValid, activeStatus],
+  user.getUserRole
+);
+router.get(
+  '/findUser/:_id',
+  [auth, validId, admin, activeStatus],
+  user.findUser
+);
+router.put('/updateUser', [auth, admin, activeStatus], user.updateUser);
+router.put(
+  '/deleteUser/:_id',
+  [auth, validId, admin, activeStatus],
+  user.deleteUser
+);
 
 export default router;
