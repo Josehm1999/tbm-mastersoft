@@ -92,8 +92,8 @@ const getUserRole = async (req, res) => {
 
 const updateUser = async (req, res) => {
   let pass = "";
-  const searchUser = await user.findOne({ email: req.body.email });
   if (!req.body.password) {
+    const searchUser = await user.findOne({ email: req.body.email });
     pass=searchUser.password;
   }else{
     pass = await bcrypt.hash(req.body.password, 10);
