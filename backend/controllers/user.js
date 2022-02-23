@@ -93,16 +93,10 @@ const getUserRole = async (req, res) => {
 const updateUser = async (req, res) => {
   let pass = "";
   const searchUser = await user.findOne({ email: req.body.email });
-  if (req.body.password) {
-    const passHash = await bcrypt.compare(
-      req.body.password,
-      searchUser.password
-    );
-    if (!passHash) {
-      pass = await bcrypt.hash(req.body.password, 10);
-    } else {
-      pass = searchUser.password;
-    }
+  if (!req.body.password) {
+    pass=searchUser.password;
+  }else{
+    pass = await bcrypt.hash(req.body.password, 10);
   }
   let changes = await userService.isChanges(req.body, pass);
   if (changes)

@@ -46,7 +46,7 @@ router.get(
   [auth, validId, admin, activeStatus],
   user.findUser
 );
-router.put('/updateUser', [isPasswordValid,auth, admin, activeStatus], user.updateUser);
+router.put('/updateUser', [isNameValid, isEmailValid, isRoleValid,auth, admin, activeStatus], user.updateUser);
 router.put(
   '/deleteUser/:_id',
   [auth, validId, admin, activeStatus],
