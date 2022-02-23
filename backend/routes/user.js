@@ -25,12 +25,12 @@ router.post(
   ],
   user.registerUser
 );
-router.post('/registerAdminUser', [auth, admin], user.registerAdminUser);
+router.post('/registerAdminUser', [isNameValid, auth, admin], user.registerAdminUser);
 router.post('/login', [isEmailValid, isPasswordValid], user.login);
 router.get('/listUsers/:name?', [auth, admin], user.listAllUser);
 router.get('/getRole/:email', [auth, isEmailValid], user.getUserRole);
 router.get('/findUser/:_id', [auth, validId, admin], user.findUser);
-router.put('/updateUser', [auth, admin], user.updateUser);
+router.put('/updateUser', [isNameValid, auth, admin], user.updateUser);
 router.put('/deleteUser/:_id', [auth, validId, admin], user.deleteUser);
 
 export default router;
