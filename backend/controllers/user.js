@@ -1,5 +1,5 @@
 import user from '../models/user.js';
-import bcrypt from '../lib/bcrypt.js';
+import bcrypt from 'bcrypt';
 import jwt from '../lib/jwt.js';
 import userService from '../services/user.js';
 
@@ -7,7 +7,7 @@ const registerUser = async (req, res) => {
   if (!req.body.name || !req.body.email || !req.body.password)
     return res.status(400).send({ message: 'Incomplete data' });
 
-  let pass = await bcrypt.hassGenerate(req.body.password);
+  let pass = await bcrypt.hash(req.body.password, 10);
 
   const schema = new user({
     name: req.body.name,
@@ -29,9 +29,6 @@ const registerUser = async (req, res) => {
 };
 
 const registerAdminUser = async (req, res) => {
-  if (!req.body.name || !req.body.email || !req.body.password || !req.body.role)
-    return res.status(400).send({ message: 'Incomplete data' });
-
   const existingUser = await user.findOne({ email: req.body.email });
   if (existingUser)
     return res.status(400).send({ message: 'The user is already registered' });
@@ -137,8 +134,6 @@ const updateUser = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  if (!req.params['_id']) return res.status(400).send('Incomplete data');
-
   const userDeleted = await user.findByIdAndUpdate(req.params['_id'], {
     dbStatus: false,
   });
@@ -148,14 +143,11 @@ const deleteUser = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  if (!req.body.email || !req.body.password)
-    return res.status(400).send({ message: 'Incomplete data' });
-
   const userLogin = await user.findOne({ email: req.body.email });
   if (!userLogin)
     return res.status(400).send({ message: 'Wrong email or password' });
 
-  let pass = await bcrypt.hassCompare(req.body.password, userLogin.password);
+  let pass = await bcrypt.compare(req.body.password, userLogin.password);
 
   if (!pass)
     return res.status(400).send({ message: 'Wrong email or password' });
