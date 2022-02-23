@@ -5,3 +5,5 @@ const isNameValid = async (req, res, next) => {
     ? res.status(400).send({ message: "Incomplete data" })
     : next();
 };
+
+export {isNameValid};
