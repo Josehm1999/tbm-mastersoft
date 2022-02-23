@@ -1,15 +1,15 @@
-import User from "../models/user.js";
-import bcrypt from "../lib/bcrypt.js";
-import jwt from "../lib/jwt.js";
-import userService from "../services/user.js";
+import user from '../models/user.js';
+import bcrypt from '../lib/bcrypt.js';
+import jwt from '../lib/jwt.js';
+import userService from '../services/user.js';
 
 const registerUser = async (req, res) => {
   if (!req.body.name || !req.body.email || !req.body.password)
-    return res.status(400).send({ message: "Incomplete data" });
+    return res.status(400).send({ message: 'Incomplete data' });
 
   let pass = await bcrypt.hassGenerate(req.body.password);
 
-  const schema = new User({
+  const schema = new user({
     name: req.body.name,
     email: req.body.email,
     password: pass,
@@ -19,27 +19,22 @@ const registerUser = async (req, res) => {
 
   const result = await schema.save();
   if (!result)
-    return res.status(500).send({ message: "Failed to register user" });
+    return res.status(500).send({ message: 'Failed to register user' });
 
   const token = await jwt.generateToken(result);
 
   return !token
-    ? res.status(500).send({ message: "Failed to register user" })
+    ? res.status(500).send({ message: 'Failed to register user' })
     : res.status(200).send({ token });
 };
 
 const registerAdminUser = async (req, res) => {
-  if (
-    !req.body.name ||
-    !req.body.email ||
-    !req.body.password ||
-    !req.body.roleId
-  )
-    return res.status(400).send({ message: "Incomplete data" });
+  if (!req.body.name || !req.body.email || !req.body.password || !req.body.role)
+    return res.status(400).send({ message: 'Incomplete data' });
 
   const existingUser = await user.findOne({ email: req.body.email });
   if (existingUser)
-    return res.status(400).send({ message: "The user is already registered" });
+    return res.status(400).send({ message: 'The user is already registered' });
 
   const passHash = await bcrypt.hash(req.body.password, 10);
 
@@ -47,13 +42,13 @@ const registerAdminUser = async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     password: passHash,
-    roleId: req.body.roleId,
+    role: req.body.role,
     dbStatus: true,
   });
 
   const result = await userRegister.save();
   return !result
-    ? res.status(400).send({ message: "Failed to register user" })
+    ? res.status(400).send({ message: 'Failed to register user' })
     : res.status(200).send({ result });
 };
 
@@ -61,62 +56,62 @@ const listUsers = async (req, res) => {
   const userList = await user
     .find({
       $and: [
-        { name: new RegExp(req.params["name"], "i") },
-        { dbStatus: "true" },
+        { name: new RegExp(req.params['name'], 'i') },
+        { dbStatus: 'true' },
       ],
     })
-    .populate("roleId")
+    .populate('role')
     .exec();
   return userList.length === 0
-    ? res.status(400).send({ message: "Empty users list" })
+    ? res.status(400).send({ message: 'Empty users list' })
     : res.status(200).send({ userList });
 };
 
 const listAllUser = async (req, res) => {
   const userList = await user
     .find({
-      $and: [{ name: new RegExp(req.params["name"], "i") }],
+      $and: [{ name: new RegExp(req.params['name'], 'i') }],
     })
-    .populate("roleId")
+    .populate('role')
     .exec();
   return userList.length === 0
-    ? res.status(400).send({ message: "Empty users list" })
+    ? res.status(400).send({ message: 'Empty users list' })
     : res.status(200).send({ userList });
 };
 
 const findUser = async (req, res) => {
   const userfind = await user
-    .findById({ _id: req.params["_id"] })
-    .populate("roleId")
+    .findById({ _id: req.params['_id'] })
+    .populate('role')
     .exec();
   return !userfind
-    ? res.status(400).send({ message: "No search results" })
+    ? res.status(400).send({ message: 'No search results' })
     : res.status(200).send({ userfind });
 };
 
 const getUserRole = async (req, res) => {
   let userRole = await user
     .findOne({ email: req.params.email })
-    .populate("roleId")
+    .populate('role')
     .exec();
-  if (!userRole) return res.status(400).send({ message: "No search results" });
+  if (!userRole) return res.status(400).send({ message: 'No search results' });
 
-  userRole = userRole.roleId.name;
+  userRole = userRole.role.name;
   return res.status(200).send({ userRole });
 };
 
 const updateUser = async (req, res) => {
-  if (!req.body.name || !req.body.email || !req.body.roleId)
-    return res.status(400).send({ message: "Incomplete data" });
+  if (!req.body.name || !req.body.email || !req.body.role)
+    return res.status(400).send({ message: 'Incomplete data' });
 
-  let pass = "";
+  let pass = '';
 
   if (req.body.password) {
     const passHash = await bcrypt.hassCompare(
       req.body.password,
       searchUser.password
     );
-    if(passHash) return res.status()
+    if (passHash) return res.status();
     if (!passHash) {
       pass = await bcrypt.hash(req.body.password, 10);
     } else {
@@ -130,47 +125,47 @@ const updateUser = async (req, res) => {
   if (changes)
     return res.status(400).send({ mesagge: "you didn't make any changes" });
 
-  const userUpdated = await User.findByIdAndUpdate(req.body._id, {
+  const userUpdated = await user.findByIdAndUpdate(req.body._id, {
     name: req.body.name,
     password: pass,
-    roleId: req.body.roleId,
+    role: req.body.role,
   });
 
   return !userUpdated
-    ? res.status(400).send({ message: "Error editing user" })
-    : res.status(200).send({ message: "User updated" });
+    ? res.status(400).send({ message: 'Error editing user' })
+    : res.status(200).send({ message: 'User updated' });
 };
 
 const deleteUser = async (req, res) => {
-  if (!req.params["_id"]) return res.status(400).send("Incomplete data");
+  if (!req.params['_id']) return res.status(400).send('Incomplete data');
 
-  const userDeleted = await User.findByIdAndUpdate(req.params["_id"], {
+  const userDeleted = await user.findByIdAndUpdate(req.params['_id'], {
     dbStatus: false,
   });
   return !userDeleted
-    ? res.status(400).send({ message: "User no found" })
-    : res.status(200).send({ message: "User deleted" });
+    ? res.status(400).send({ message: 'User no found' })
+    : res.status(200).send({ message: 'User deleted' });
 };
 
 const login = async (req, res) => {
   if (!req.body.email || !req.body.password)
-    return res.status(400).send({ message: "Incomplete data" });
+    return res.status(400).send({ message: 'Incomplete data' });
 
-  const userLogin = await User.findOne({ email: req.body.email });
+  const userLogin = await user.findOne({ email: req.body.email });
   if (!userLogin)
-    return res.status(400).send({ message: "Wrong email or password" });
+    return res.status(400).send({ message: 'Wrong email or password' });
 
   let pass = await bcrypt.hassCompare(req.body.password, userLogin.password);
 
   if (!pass)
-    return res.status(400).send({ message: "Wrong email or password" });
+    return res.status(400).send({ message: 'Wrong email or password' });
 
   if (!userLogin.dbStatus)
-    return res.status(400).send({ message: "Wrong email or password" });
+    return res.status(400).send({ message: 'Wrong email or password' });
 
   const token = await jwt.generateToken(userLogin);
   return !token
-    ? res.status(500).send({ message: "Login error" })
+    ? res.status(500).send({ message: 'Login error' })
     : res.status(200).send({ token });
 };
 
