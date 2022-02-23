@@ -1,9 +1,9 @@
 console.log("validaciones");
-
-const isNameValid = async (req, res, next) => {
+let message = "Incomplete data";
+const isPasswordValid = async (req, res, next) => {
   return !req.body.password
-    ? res.status(400).send({ message: "Incomplete data" })
+    ? res.status(400).send({ message: message })
     : next();
 };
 
-export {isNameValid};
+export { isPasswordValid };
