@@ -105,7 +105,7 @@ const updateUser = async (req, res) => {
     return res.status(400).send({ message: 'Incomplete data' });
 
   let pass = '';
-
+  const searchUser= await user.findOne({email:req.body.email});
   if (req.body.password) {
     const passHash = await bcrypt.hassCompare(
       req.body.password,
