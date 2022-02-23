@@ -1,21 +1,21 @@
-import express from 'express';
-import user from '../controllers/user.js';
-import auth from '../middlewares/auth.js';
-import admin from '../middlewares/admin.js';
-import { existingUser, activeStatus } from '../middlewares/user.js';
-import roleMidd from '../middlewares/role.js';
-import validId from '../middlewares/validId.js';
+import express from "express";
+import user from "../controllers/user.js";
+import auth from "../middlewares/auth.js";
+import admin from "../middlewares/admin.js";
+import { existingUser, activeStatus } from "../middlewares/user.js";
+import roleMidd from "../middlewares/role.js";
+import validId from "../middlewares/validId.js";
 import {
   isPasswordValid,
   isEmailValid,
-  isRoleValid,
   isNameValid,
-} from '../middlewares/validations.js';
+  isRoleValid,
+} from "../middlewares/validations.js";
 
 const router = express.Router();
 
 router.post(
-  '/register',
+  "/register",
   [
     isNameValid,
     isEmailValid,
@@ -26,29 +26,41 @@ router.post(
   user.registerUser
 );
 router.post(
-  '/registerAdminUser',
-  [auth, admin, existingUser],
+  "/registerAdminUser",
+  [
+    isNameValid,
+    isEmailValid,
+    isPasswordValid,
+    isRoleValid,
+    auth,
+    admin,
+    existingUser,
+  ],
   user.registerAdminUser
 );
 router.post(
-  '/login',
+  "/login",
   [isEmailValid, isPasswordValid, activeStatus],
   user.login
 );
-router.get('/listUsers/:name?', [auth, admin], user.listAllUser);
+router.get("/listUsers/:name?", [auth, admin], user.listAllUser);
 router.get(
-  '/getRole/:email',
+  "/getRole/:email",
   [auth, isEmailValid, activeStatus],
   user.getUserRole
 );
 router.get(
-  '/findUser/:_id',
+  "/findUser/:_id",
   [auth, validId, admin, activeStatus],
   user.findUser
 );
-router.put('/updateUser', [isNameValid, isEmailValid, isRoleValid,auth, admin, activeStatus], user.updateUser);
 router.put(
-  '/deleteUser/:_id',
+  "/updateUser",
+  [isEmailValid, isNameValid, isRoleValid, auth, admin, activeStatus],
+  user.updateUser
+);
+router.put(
+  "/deleteUser/:_id",
   [auth, validId, admin, activeStatus],
   user.deleteUser
 );
