@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 let message = 'Incomplete data';
 
 const isNameValid = async (req, res, next) => {
@@ -8,7 +9,10 @@ const isPasswordValid = async (req, res, next) => {
 };
 
 const isRoleValid = async (req, res, next) => {
-  return !req.body.role ? res.status(400).send({ message }) : next();
+  const validate = mongoose.Types.ObjectId.isValid(req.body.role);
+  return !req.body.role || !validate
+    ? res.status(400).send({ message })
+    : next();
 };
 
 const isEmailValid = async (req, res, next) => {

@@ -8,7 +8,6 @@ import validId from '../middlewares/validId.js';
 import {
   isPasswordValid,
   isEmailValid,
-  isRoleValid,
   isNameValid,
 } from '../middlewares/validations.js';
 
@@ -46,7 +45,11 @@ router.get(
   [auth, validId, admin, activeStatus],
   user.findUser
 );
-router.put('/updateUser', [isNameValid, isEmailValid, isRoleValid,auth, admin, activeStatus], user.updateUser);
+router.put(
+  '/updateUser',
+  [isEmailValid, isNameValid, auth, admin, activeStatus],
+  user.updateUser
+);
 router.put(
   '/deleteUser/:_id',
   [auth, validId, admin, activeStatus],
