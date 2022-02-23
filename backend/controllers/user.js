@@ -94,20 +94,14 @@ const updateUser = async (req, res) => {
   let pass = "";
   const searchUser = await user.findOne({ email: req.body.email });
   if (req.body.password) {
-    const passHash = await bcrypt.compare(
-      req.body.password,
-      searchUser.password
-    );
-    if (passHash) return res.status();
+    const passHash = await bcrypt.compare(req.body.password,searchUser.password);
     if (!passHash) {
       pass = await bcrypt.hash(req.body.password, 10);
-    } else {
-      pass = searchUser.password;
     }
-  } else {
-    pass = searchUser.password;
+    else {
+   pass = searchUser.password;
   }
-
+ }
   let changes = await userService.isChanges(req.body, pass);
   if (changes)
     return res.status(400).send({ mesagge: "you didn't make any changes" });
