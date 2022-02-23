@@ -6,4 +6,10 @@ const isPasswordValid = async (req, res, next) => {
     : next();
 };
 
-export { isPasswordValid };
+const isNullRole = async (req, res, next) => {
+    return !req.body.role
+      ? res.status(400).send({ message: message })
+      : next();
+  };
+
+export { isPasswordValid , isNullRole};
