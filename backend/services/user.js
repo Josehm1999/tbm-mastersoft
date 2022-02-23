@@ -1,4 +1,4 @@
-import User from '../models/user.js';
+import User from "../models/user.js";
 
 const isChanges = async (user, password) => {
   let changes = false;
@@ -6,7 +6,7 @@ const isChanges = async (user, password) => {
     name: user.name,
     email: user.email,
     password: password,
-    role: user.role,
+    roleId: user.roleId,
   });
   return userData ? (changes = true) : changes;
 };
